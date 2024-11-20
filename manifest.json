@@ -45,14 +45,25 @@
       "*://*.medium.com/*",
       "*://localhost/*"
     ],
-    "js": ["network.js", "content.js"],
+    "js": [
+      "network.js",
+      "ui.js",
+      "detection.js",
+      "dom.js",
+      "observer.js",
+      "content.js"
+    ],
     "run_at": "document_end",
     "all_frames": false
   }],
   "content_security_policy": "script-src 'self' https://github.githubassets.com; object-src 'self'; connect-src 'self' http://localhost:5000/ https://github.githubassets.com http://* https://*",
   "web_accessible_resources": [
     "content.js",
-    "network.js"
+    "network.js",
+    "ui.js",
+    "detection.js",
+    "dom.js",
+    "observer.js"
   ],
   "background": {
     "scripts": ["background.js"],
