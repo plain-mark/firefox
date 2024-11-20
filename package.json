@@ -1,0 +1,33 @@
+{
+  "name": "code-block-extractor",
+  "version": "1.0.0",
+  "description": "Code block extraction and processing tool",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+  },
+  "jest": {
+    "transform": {},
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["./tests/setup.js"],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "verbose": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov"],
+    "collectCoverageFrom": [
+      "*.js",
+      "!jest.config.js"
+    ]
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

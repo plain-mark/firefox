@@ -1,12 +1,21 @@
 {
   "manifest_version": 2,
   "name": "Code Block Extractor",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Extracts code blocks from various platforms",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "code-block-extractor@plainmark.com",
+      "strict_min_version": "57.0"
+    }
+  },
   "permissions": [
     "activeTab",
     "http://localhost:5000/"
   ],
+  "background": {
+    "scripts": ["background.js"]
+  },
   "content_scripts": [{
     "matches": [
       "*://*.discord.com/*",
@@ -34,5 +43,9 @@
       "*://*.medium.com/*"
     ],
     "js": ["content.js"]
-  }]
+  }],
+  "icons": {
+    "48": "icons/icon48.png",
+    "96": "icons/icon96.png"
+  }
 }
