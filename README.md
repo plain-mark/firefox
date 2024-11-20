@@ -1,5 +1,3 @@
-
-
 # Code Block Extractor
 
 A Firefox extension for extracting and processing code blocks from various platforms.
@@ -19,6 +17,24 @@ A Firefox extension for extracting and processing code blocks from various platf
 - Node.js (v14 or higher)
 - npm
 
+```aiignore
+project_root/
+├── venv/
+├── .env
+├── requirements.txt
+├── app.py
+├── notifications.py
+├── project_sharing.py
+├── templates/
+│   └── email_template.html
+├── public/
+│   └── feed.xml
+├── tests/
+│   ├── test_api.py
+│   ├── test_notifications.py
+│   └── test_project_sharing.py
+└── notifications.yml
+```
 ### Installation
 
 ```bash
