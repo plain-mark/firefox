@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "Code Block Extractor",
+  "version": "1.1",
+  "description": "Extracts code blocks from various platforms",
+  "permissions": [
+    "activeTab",
+    "http://localhost:5000/"
+  ],
+  "content_scripts": [{
+    "matches": [
+      "*://*.discord.com/*",
+      "*://*.claude.ai/*",
+      "*://*.chat.openai.com/*",
+      "*://*.github.com/*",
+      "*://*.stackoverflow.com/*",
+      "*://*.stackexchange.com/*",
+      "*://*.reddit.com/*",
+      "*://*.gitter.im/*",
+      "*://*.slack.com/*",
+      "*://*.teams.microsoft.com/*",
+      "*://*.gitlab.com/*",
+      "*://*.bitbucket.org/*",
+      "*://*.notion.so/*",
+      "*://*.obsidian.md/*",
+      "*://jupyter.org/*",
+      "*://*.kaggle.com/*",
+      "*://*.colab.google.com/*",
+      "*://codepen.io/*",
+      "*://jsfiddle.net/*",
+      "*://*.replit.com/*",
+      "*://*.hashnode.com/*",
+      "*://*.dev.to/*",
+      "*://*.medium.com/*"
+    ],
+    "js": ["content.js"]
+  }]
+}
