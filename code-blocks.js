@@ -1,82 +1,51 @@
-import { PLATFORM_SELECTORS, MIN_CODE_LENGTH, SUPPORTED_LANGUAGES } from './config.js';
-import { detectPlatform } from './platform.js';
-import { addRunButtonToElement } from './ui.js';
-
-export function extractCodeBlocks(doc = document) {
-  console.log('[Extraction] Starting code block extraction...');
-  const platform = detectPlatform(doc.location?.href || window.location.href);
-  const selectors = [
-    ...PLATFORM_SELECTORS[platform],
-    ...PLATFORM_SELECTORS.generic
-  ];
-  
-  console.log('[Extraction] Using selectors:', selectors);
-  const codeBlocks = new Set();
-  let blockCount = 0;
-  
-  selectors.forEach(selector => {
-    const elements = doc.querySelectorAll(selector);
-    console.log(`[Extraction] Found ${elements.length} elements matching selector: ${selector}`);
+// Code block extraction functionality
+window.CODE_BLOCKS = {
+  extractCodeBlocks: function() {
+    const platform = PLATFORM.detectPlatform();
+    console.log('[Extract] Detected platform:', platform);
     
-    elements.forEach(element => {
-      const isInPre = element.closest('pre');
-      if (!isInPre && !element.classList.contains('block')) {
-        console.log('[Extraction] Skipping element - not in pre tag or missing block class');
-        return;
-      }
-      
-      const code = element.textContent.trim();
-      if (!code || code.length < MIN_CODE_LENGTH) {
-        console.log('[Extraction] Skipping element - empty or too short code block');
-        return;
-      }
-      
-      let language = detectLanguage(element);
-      
-      const blockData = {
-        code,
-        language,
-        platform,
-        url: doc.location?.href || window.location.href,
-        timestamp: new Date().toISOString(),
-        title: doc.title || document.title,
-        contextHtml: isInPre ? isInPre.parentElement.innerHTML : element.parentElement.innerHTML
-      };
+    let selectors = CONFIG.PLATFORM_SELECTORS[platform] || CONFIG.PLATFORM_SELECTORS.generic;
+    console.log('[Extract] Using selectors:', selectors);
 
-      codeBlocks.add(JSON.stringify(blockData));
-      blockCount++;
-      console.log(`[Extraction] Added code block #${blockCount} with language: ${language}`);
-      
-      addRunButtonToElement(element, blockData);
+    let codeBlocks = [];
+    selectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(element => {
+        const code = element.textContent.trim();
+        if (code.length >= CONFIG.MIN_CODE_LENGTH) {
+          const language = this.detectLanguage(element);
+          codeBlocks.push({
+            code: code,
+            language: language,
+            selector: selector
+          });
+        }
+      });
     });
-  });
 
-  console.log(`[Extraction] Complete. Found ${blockCount} unique code blocks`);
-  return Array.from(codeBlocks).map(block => JSON.parse(block));
-}
+    console.log('[Extract] Found code blocks:', codeBlocks.length);
+    return codeBlocks;
+  },
 
-function detectLanguage(element) {
-  let language = 'text';
-  const classNames = [...element.classList];
-  console.log('[Extraction] Analyzing element classes:', classNames);
-  
-  for (const className of classNames) {
-    if (className.startsWith('language-')) {
-      language = className.replace('language-', '');
-      console.log('[Extraction] Language detected from language- prefix:', language);
-      break;
+  detectLanguage: function(element) {
+    // Try to get language from class
+    const classes = Array.from(element.classList);
+    for (const cls of classes) {
+      const match = cls.match(/language-(\w+)/);
+      if (match && CONFIG.SUPPORTED_LANGUAGES.includes(match[1])) {
+        return match[1];
+      }
     }
-    if (className.startsWith('hljs-')) {
-      language = className.replace('hljs-', '');
-      console.log('[Extraction] Language detected from hljs- prefix:', language);
-      break;
+
+    // Try parent element classes
+    const parentClasses = Array.from(element.parentElement.classList);
+    for (const cls of parentClasses) {
+      const match = cls.match(/language-(\w+)/);
+      if (match && CONFIG.SUPPORTED_LANGUAGES.includes(match[1])) {
+        return match[1];
+      }
     }
-    if (SUPPORTED_LANGUAGES.includes(className.toLowerCase())) {
-      language = className.toLowerCase();
-      console.log('[Extraction] Language detected from supported languages:', language);
-      break;
-    }
+
+    return 'text';
   }
-  
-  return language;
-}
+};
