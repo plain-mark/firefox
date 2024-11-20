@@ -1,33 +1,38 @@
-# src/App.js
-import React, { useState } from 'react';
-import TodoList from './components/TodoList';
+markdown_code_exec
+Execute Python code in Markdown files and captures the output
+Copyright 2022 Sebastiaan Mathôt
+Command-line usage
+import sys
+import subprocess
+p = subprocess.run([sys.executable, 'markdown_code_exec.py', '--help'],
+               capture_output=True, text=True)
+print(p.stdout)
 
-function App() {
-    const [todos, setTodos] = useState([]);
-    const [input, setInput] = useState('');
+    
+      
+    
 
-    const addTodo = (e) => {
-        e.preventDefault();
-        if (input.trim()) {
-            setTodos([...todos, { id: Date.now(), text: input, completed: false }]);
-            setInput('');
-        }
-    };
+      
+    
 
-    return (
-        <div className="App">
-            <h1>Todo App</h1>
-            <form onSubmit={addTodo}>
-                <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Add a todo"
-                />
-                <button type="submit">Add</button>
-            </form>
-            <TodoList todos={todos} setTodos={setTodos} />
-        </div>
-    );
-}
+    
+  
+Function reference
+from markdown_code_exec import parse_text, parse_file
+from npdoc_to_md import render_md_from_obj_docstring
 
-export default App;
+print(render_md_from_obj_docstring(parse_text, 'markdown_code_exec.parse_text'))
+print('\n\n')
+print(render_md_from_obj_docstring(parse_file, 'markdown_code_exec.parse_file'))
+
+    
+      
+    
+
+      
+    
+
+    
+  
+License
+GNU General Public License 3
