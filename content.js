@@ -2,7 +2,7 @@
 console.log('Code Block Extractor: Starting...');
 
 // Function to send code to localhost with retry logic
-async function sendToLocalhost(code, retries = 3) {
+async function sendToLocalhost2(code, retries = 3) {
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -37,6 +37,43 @@ async function sendToLocalhost(code, retries = 3) {
 
             if (attempt === retries) {
                 showNotification(`Failed to send code after ${retries} attempts`, true);
+                throw error;
+            }
+
+            // Wait before retrying (exponential backoff)
+            await delay(Math.pow(2, attempt) * 1000);
+        }
+    }
+}
+
+// Function to send code to convert endpoint with retry logic
+async function sendToLocalhost(code, retries = 3) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            // Create form data
+            const formData = new FormData();
+            formData.append('markdown_content', code);
+
+            const response = await fetch('http://localhost:5000/convert', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Code sent to convert endpoint successfully:', data);
+            showNotification('Code sent to converter successfully!', false);
+            return;
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed for convert endpoint:`, error);
+
+            if (attempt === retries) {
+                showNotification(`Failed to send code to converter after ${retries} attempts`, true);
                 throw error;
             }
 
@@ -161,7 +198,11 @@ function processCopyButtons() {
 
                 if (code) {
                     console.log('Captured code:', code.substring(0, 100) + '...');
-                    await sendToLocalhost(code);
+                    // Send to both endpoints
+                    await Promise.all([
+                        sendToLocalhost(code),
+                        // sendToLocalhost2(code)
+                    ]);
                 } else {
                     showNotification('No code found to extract', true);
                 }
