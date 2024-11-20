@@ -11,7 +11,10 @@
   },
   "permissions": [
     "activeTab",
-    "http://localhost:5000/*"
+    "http://localhost:5000/*",
+    "webRequest",
+    "webRequestBlocking",
+    "*://*/*"
   ],
   "content_scripts": [{
     "matches": [
@@ -46,8 +49,12 @@
     "run_at": "document_end",
     "all_frames": false
   }],
-  "content_security_policy": "script-src 'self'; object-src 'self'; connect-src http://localhost:5000/",
+  "content_security_policy": "script-src 'self' https://github.githubassets.com; object-src 'self'; connect-src 'self' http://localhost:5000/ https://github.githubassets.com http://* https://*",
   "web_accessible_resources": [
     "content.js"
-  ]
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  }
 }

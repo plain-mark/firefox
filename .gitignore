@@ -5,3 +5,5 @@ coverage/
 .idea
 package-lock.json
 .env
+code_blocks.db
+venv
