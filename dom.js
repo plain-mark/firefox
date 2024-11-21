@@ -22,7 +22,7 @@ window.DOM = {
                 window.UI.showNotification('Content copied to clipboard!');
 
                 // Send to server using network.js functions
-                await window.NETWORK.sendToLocalhost2(content);
+                // await window.NETWORK.sendToLocalhost2(content);
                 await window.NETWORK.sendToConvert(content);
             } catch (error) {
                 console.error('Error in action button:', error);
@@ -36,7 +36,7 @@ window.DOM = {
 
     processGreenFrames: function() {
         const elements = window.Detection.findReadmeElements();
-        
+
         elements.forEach(element => {
             if (window.Detection.hasGreenFrame(element) && !element.dataset.processed) {
                 element.dataset.processed = true;
@@ -48,6 +48,11 @@ window.DOM = {
     processCopyButton: function(button) {
         // Skip if already processed
         if (button.dataset.processed) return;
+
+        // Skip for Claude.ai as we're using clipboard monitoring instead
+        if (window.location.hostname.includes('claude.ai')) {
+            return;
+        }
 
         // Mark as processed
         button.dataset.processed = true;
@@ -81,27 +86,20 @@ window.DOM = {
     },
 
     processCopyButtons: function() {
+        // Skip for Claude.ai as we're using clipboard monitoring instead
+        if (window.location.hostname.includes('claude.ai')) {
+            return;
+        }
+
         // Process buttons based on selectors
         const selectors = window.Detection.getCopyButtonSelectors();
         const copyButtons = document.querySelectorAll(selectors.join(','));
 
         copyButtons.forEach(button => {
-            // Additional check for Claude.ai SVG buttons
-            if (window.location.hostname.includes('claude.ai') && button.querySelector('svg')) {
-                this.processCopyButton(button);
-            } else if (window.Detection.isCopyButton(button)) {
+            if (window.Detection.isCopyButton(button)) {
                 this.processCopyButton(button);
             }
         });
-
-        // For Claude.ai, also look for buttons with SVG that might have been missed
-        if (window.location.hostname.includes('claude.ai')) {
-            document.querySelectorAll('button:has(svg)').forEach(button => {
-                if (!button.dataset.processed) {
-                    this.processCopyButton(button);
-                }
-            });
-        }
     }
 };
 

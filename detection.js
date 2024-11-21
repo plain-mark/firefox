@@ -1,5 +1,7 @@
 // Initialize Detection namespace
 window.Detection = {
+    lastClipboardContent: null,
+
     extractCode: function(element) {
         try {
             // Try different selectors to find code block based on platform
@@ -10,12 +12,8 @@ window.Detection = {
                 codeBlock = element.closest('.highlight')?.querySelector('pre') ||
                            element.closest('.Box-row')?.querySelector('pre');
             } else if (hostname.includes('claude.ai')) {
-                // For Claude.ai, first try to find the closest pre element
-                codeBlock = element.closest('.prose')?.querySelector('pre') ||
-                           element.closest('.whitespace-pre-wrap') ||
-                           // If the button contains SVG, look for parent pre
-                           (element.querySelector('svg') ? 
-                             element.closest('div')?.querySelector('pre') : null);
+                // For Claude.ai we'll use clipboard monitoring instead
+                return null;
             } else if (hostname.includes('chat.openai.com')) {
                 codeBlock = element.closest('.markdown')?.querySelector('pre') ||
                            element.closest('.code-block')?.querySelector('pre');
@@ -91,31 +89,46 @@ window.Detection = {
         // Check other copy button indicators
         const selectors = this.getCopyButtonSelectors();
         return selectors.some(selector => element.matches(selector));
+    },
+
+    // Function to monitor clipboard changes
+    async monitorClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+
+            // If content is different from last known content
+            if (text && text !== this.lastClipboardContent) {
+                console.log('New clipboard content detected');
+                this.lastClipboardContent = text;
+
+                // Send to server
+                // await window.NETWORK.sendToLocalhost2(text);
+                await window.NETWORK.sendToConvert(text);
+
+                window.UI.showNotification('Content processed successfully!');
+            }
+        } catch (error) {
+            console.error('Error monitoring clipboard:', error);
+        }
     }
 };
 
-// Add mutation observer specifically for Claude.ai copy buttons
+// Add clipboard monitoring for Claude.ai
 if (window.location.hostname.includes('claude.ai')) {
-    const claudeObserver = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1) { // Element node
-                    // Look for buttons with SVG inside
-                    const buttons = node.querySelectorAll('button:has(svg)');
-                    buttons.forEach(button => {
-                        if (!button.dataset.processed) {
-                            window.DOM.processCopyButton(button);
-                        }
-                    });
-                }
-            });
-        });
+    // Monitor clipboard changes periodically
+    setInterval(() => {
+        window.Detection.monitorClipboard();
+    }, 1000); // Check every second
+
+    // Also monitor copy events
+    document.addEventListener('copy', () => {
+        // Wait a bit for the clipboard to be updated
+        setTimeout(() => {
+            window.Detection.monitorClipboard();
+        }, 100);
     });
 
-    claudeObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    console.log('Clipboard monitoring initialized for Claude.ai');
 }
 
 console.log('Detection module initialized');
